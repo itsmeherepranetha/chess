@@ -1,23 +1,27 @@
 import { useEffect, useState } from "react"
+import { useUser } from "@repo/store/useUser";
 
-const WS_URL="ws://localhost:8080";
+const WS_URL = "ws://localhost:8080";
 
-export const useSocket=()=>{
-    const [socket,setSocket]=useState<WebSocket | null>(null);
+export const useSocket = () => {
+    const [socket, setSocket] = useState<WebSocket | null>(null);
+    const user = useUser();
 
-    useEffect(()=>{
-        const ws=new WebSocket(WS_URL);
-        ws.onopen=()=>{
+    useEffect(() => {
+        const ws = new WebSocket(`${WS_URL}?token=${user.token}`);
+
+        ws.onopen = () => {
             setSocket(ws);
         }
-        ws.onclose=()=>{
-            //console.log("disconnected");
+
+        ws.onclose = () => {
             setSocket(null);
         }
-        return ()=>{
+
+        return () => {
             ws.close();
         }
+    }, [user])
 
-    },[])
-    return socket;
+    return socket;  
 }
